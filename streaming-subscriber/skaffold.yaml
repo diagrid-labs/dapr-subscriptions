@@ -1,0 +1,33 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: streaming-subscriber
+
+build:
+  tagPolicy:
+    inputDigest: { }
+  artifacts:
+    - image: bibryam/streaming-subscriber
+      docker:
+        dockerfile: Dockerfile
+  local: {}
+
+manifests:
+  rawYaml:
+    - ../common/kubernetes/*
+    - deploy/*
+
+deploy:
+  kubectl: {}
+  logs:
+    prefix: auto
+
+portForward:
+  - resourceType: deployment
+    resourceName: streaming-subscriber
+    port: 9090
+    localPort: 5013
+  - resourceType: deployment
+    resourceName: streaming-subscriber
+    port: 3500
+    localPort: 3503

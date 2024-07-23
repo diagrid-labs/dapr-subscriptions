@@ -1,0 +1,37 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: declarative-subscriber
+
+build:
+  tagPolicy:
+    inputDigest: { }
+  artifacts:
+    - image: bibryam/declarative-subscriber
+      docker:
+        dockerfile: Dockerfile
+  local: {}
+
+manifests:
+  rawYaml:
+    - ../common/kubernetes/*
+    - deploy/*
+
+deploy:
+  kubectl: {}
+  logs:
+    prefix: auto
+
+portForward:
+  - resourceType: deployment
+    resourceName: declarative-subscriber
+    port: 5004
+    localPort: 5004
+  - resourceType: deployment
+    resourceName: declarative-subscriber
+    port: 9090
+    localPort: 5014
+  - resourceType: deployment
+    resourceName: declarative-subscriber
+    port: 3500
+    localPort: 3504

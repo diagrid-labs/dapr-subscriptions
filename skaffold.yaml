@@ -1,0 +1,7 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+requires:
+  - path: ./publisher
+  - path: ./declarative-subscriber
+  - path: ./programmatic-subscriber
+  - path: ./streaming-subscriber
