@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	daprd "github.com/dapr/go-sdk/client"
 	"log"
@@ -14,6 +13,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := subscribeToOrders(client); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func subscribeToOrders(client daprd.Client) error {
 	deadLetterTopic := "deadletter"
 	sub, err := client.Subscribe(context.Background(), daprd.SubscriptionOptions{
 		PubsubName:      "pubsub",
@@ -21,22 +26,20 @@ func main() {
 		DeadLetterTopic: &deadLetterTopic,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	fmt.Printf(">>Created subscription\n")
+	defer sub.Close()
+	fmt.Printf("Subscription created\n")
 
 	for {
 		msg, err := sub.Receive()
 		if err != nil {
-			log.Fatalf("error receiving message: %v", err)
+			return fmt.Errorf("error receiving message: %v", err)
 		}
+
 		log.Printf("Streaming Subscriber received: : %s\n", msg.RawData)
 		if err := msg.Success(); err != nil {
-			log.Fatalf("error sending message success: %v", err)
+			return fmt.Errorf("error sending message success: %v", err)
 		}
-	}
-
-	if err := errors.Join(sub.Close()); err != nil {
-		log.Fatal(err)
 	}
 }
